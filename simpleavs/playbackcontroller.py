@@ -1,4 +1,7 @@
-""" owns all PlaybackController AVS namespace interaction """
+""" owns all PlaybackController AVS namespace interaction
+
+    https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/playbackcontroller
+"""
 
 from __future__ import unicode_literals
 

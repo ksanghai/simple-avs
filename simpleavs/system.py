@@ -1,4 +1,7 @@
-""" owns all System AVS namespace interaction """
+""" owns all System AVS namespace interaction
+
+    https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/system
+"""
 
 from __future__ import absolute_import
 from __future__ import unicode_literals

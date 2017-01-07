@@ -1,4 +1,7 @@
-""" owns all Alerts AVS namespace interaction """
+""" owns all Alerts AVS namespace interaction
+
+    https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/alerts
+"""
 
 from __future__ import absolute_import
 from __future__ import unicode_literals
