@@ -9,6 +9,9 @@ Very much a work in progress, but the basic structure works.
 
 Note: this is not meant to act as a "device", this is a simple interface to the AVS API which requires you to send/respond to the events and directives that AVS uses.
 
+## Install
+`pip install simpleavs`
+
 ## Example usage
 
 ```python
