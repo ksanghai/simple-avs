@@ -5,7 +5,7 @@ from distutils.core import setup
 setup(
     name='simpleavs',
     packages=['simpleavs'],
-    version='0.1',
+    version='0.2',
     description='Simple AVS API Client (Amazon Alexa Voice Service) for v20160207',
     author='Rob Ladbrook',
     author_email='simpleavs@slyfx.com',
