@@ -13,4 +13,5 @@ setup(
     download_url='https://github.com/robladbrook/simpleavs/tarball/0.1',
     keywords=['avs', 'alexa', 'amazon', 'voice'],
     classifiers=[],
+    install_requires=['pyyaml', 'requests', 'hyper']
 )
