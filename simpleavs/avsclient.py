@@ -19,13 +19,14 @@ class AvsClient(object):
     # pylint: disable=too-many-instance-attributes
 
     def __init__(self, config):
-        id_service = IdService()
+        self.id_service = IdService()
 
         config['url'] = config.get('url', 'avs-alexa-na.amazon.com')
-        self._connection = AvsConnection(config, id_service=id_service,
+        self._connection = AvsConnection(config, id_service=self.id_service,
                                          fetch_context=self._fetch_context)
 
-        self.speech_recognizer = SpeechRecognizer(self._connection, id_service)
+        self.speech_recognizer = SpeechRecognizer(
+            self._connection, self.id_service)
         self.speech_synthesizer = SpeechSynthesizer(self._connection)
         self.alerts = Alerts(self._connection)
         self.audio_player = AudioPlayer(self._connection)

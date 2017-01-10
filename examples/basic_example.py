@@ -9,7 +9,7 @@ import io
 import time
 import yaml
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import simpleavs  # pylint: disable=wrong-import-position
 
