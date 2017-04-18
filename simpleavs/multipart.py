@@ -138,7 +138,7 @@ class MultipartParser(object):
 
         if line != separator and not self._current_part:
             raise MultipartError('Stream does not start with boundary: ' +
-                                 line)
+                                 unicode(line))
 
         if not self._current_part:
             self._current_part = MultipartPart(charset=self.charset)

@@ -51,8 +51,10 @@ def get_boundary_from_response(response):
         # e.g. multipart/related; boundary=my-magic-boundary
         r'[^;]+;\s{0,}boundary="?([^";]+)"?;?',
         content_type)
-
-    return boundary_match.group(1)
+    if boundary_match is not None:
+	    return boundary_match.group(1)
+    else:
+	 return None
 
 
 def get_content_id(message_part):
@@ -70,12 +72,19 @@ def get_content_id(message_part):
     if 'directive' not in content or 'payload' not in content['directive']:
         return None
 
-    if 'url' not in content['directive']['payload']:
-        return None
+    if 'url' in content['directive']['payload']:
+	    content_id = content['directive']['payload']['url'].replace('cid:', '')
+	    return content_id.strip(' <>').lower()
 
-    content_id = content['directive']['payload']['url'].replace('cid:', '')
+    if 'audioItem' in content['directive']['payload']:
+	if 'stream' in content['directive']['payload']['audioItem']:
+		if 'url' in content['directive']['payload']['audioItem']['stream']:
+		    content_id = content['directive']['payload']['audioItem']['stream']['url']
+		    if content_id.startswith('cid:'):
+			    content_id = content_id.replace('cid:', '')
+			    return content_id.strip(' <>').lower()
 
-    return content_id.strip(' <>').lower()
+    return None
 
 
 class AvsConnection(object):
@@ -183,7 +192,6 @@ class AvsConnection(object):
         else:
             _LOG.warning('Recieved non-json message parts with ' +
                          'same Content-ID (ignoring)')
-
         if json_message:
             self.message_received(json_message)
 
@@ -210,7 +218,7 @@ class AvsConnection(object):
                     'GET', '/ping', path_version=False)
                 data = self._get_response(stream_id)
             except HTTP20Error as http_err:
-                _LOG.warning('Ping not successful: ' + http_err)
+                _LOG.warning('Ping not successful: ' + unicode(http_err))
                 self.reconnect()
                 break
 
@@ -273,8 +281,8 @@ class AvsConnection(object):
             path = '/v20160207' + path
 
         with self._connection_lock:
-            stream_id = self._connection.request(
-                method, path, headers=headers, body=body)
+            stream_id = self._connection.request_chunked(
+                method, path, body=body, headers=headers)
 
         return stream_id
 
@@ -299,10 +307,8 @@ class AvsConnection(object):
         if message_parts:
             self._process_message_parts(message_parts)
 
-    def send_event(self, header, include_state, payload=None,
-                   audio=None):
-        """ sends an event to AVS """
-        if payload is None:
+    def _gen_data(self, header, include_state, payload=None, audio=None):
+	if payload is None:
             payload = {}
 
         header['messageId'] = self._id_service.get_new_message_id()
@@ -318,16 +324,28 @@ class AvsConnection(object):
             body_dict['context'] = self._fetch_context()
 
         body_string = _START_JSON + json.dumps(body_dict).encode()
+	yield body_string
 
         if audio is not None:
-            body_string += _START_AUDIO + audio
+		yield _START_AUDIO
+		for audio_chunk in audio:
+			yield audio_chunk
+        # if audio is not None:
+            # body_string += _START_AUDIO + audio
 
         body_string += ("--" + _SIMPLE_AVS_BOUNDARY + "--").encode()
+	yield body_string
 
+ 
+    def send_event(self, header, include_state, payload=None,
+                   audio=None):
+        """ sends an event to AVS """
+	body_string=self._gen_data(header, include_state, payload=payload, audio=audio)
+	
         _LOG.info('Sending event %s from %s',
                   header['name'], header['namespace'])
 
-        stream_id = self._send_request('POST', '/events', body=body_string)
+	stream_id = self._send_request('POST', '/events', body=body_string)
         response = self._get_response(stream_id)
 
         self._process_response(response)
