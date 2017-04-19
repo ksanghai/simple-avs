@@ -1,3 +1,8 @@
 pyyaml
 requests
-hyper
+requests-toolbelt
+python-dateutil
+pytz
+ujson
+-e git://github.com/lddias/hyper.git@development#egg=hyper
+
